@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Encontrá tu alternativa · Juanma Solís Coach</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#1F1E1D;--bg2:#282828;--bg3:#333;--inv:#E8E5DC;--tx:#DBDBDB;--tx2:#A9A9A9;--mu:#878787;--y:#EEB625;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Manrope,system-ui,sans-serif;line-height:1.5}
+#app{max-width:640px;margin:0 auto;padding:20px 18px 60px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--tx2)}
+header b{color:var(--inv)}
+h1{font-size:34px;line-height:1.1;margin:0 0 10px;color:var(--inv);font-weight:800;letter-spacing:-.02em}
+h2{font-size:20px;margin:0 0 6px;color:var(--inv);font-weight:800}
+h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx2);margin:22px 0 8px}
+p{margin:0 0 10px}.sub{color:var(--tx2);margin-bottom:22px}.mu{color:var(--mu);font-size:13px}
+input,select{width:100%;background:var(--bg2);border:1px solid var(--bg3);color:var(--tx);border-radius:12px;padding:14px;font:inherit;font-size:16px}
+input:focus,select:focus{outline:2px solid var(--inv)}
+label{display:block;font-weight:600;margin:0 0 8px;color:var(--inv)}
+button{font:inherit;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{background:var(--bg2);border:1px solid var(--bg3);color:var(--tx2);padding:8px 13px;border-radius:99px;font-size:13px}
+.chip.on{background:var(--inv);color:var(--bg);border-color:var(--inv);font-weight:600}
+.seg{display:flex;background:var(--bg2);border-radius:12px;padding:4px;margin:16px 0 6px}
+.seg button{flex:1;border:0;background:none;color:var(--tx2);padding:10px;border-radius:9px;font-weight:600;font-size:13px}
+.seg .on{background:var(--inv);color:var(--bg)}
+.card{background:var(--bg2);border:1px solid var(--bg3);border-radius:16px;padding:16px;margin:10px 0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left}
+button.card{color:var(--tx);display:block;width:100%;text-align:left}
+.btn{background:var(--inv);color:var(--bg);border:0;border-radius:12px;padding:14px 18px;font-weight:800;width:100%;margin-top:10px}
+.btn.g{background:none;color:var(--tx);border:1px solid var(--bg3)}
+.link{background:none;border:0;color:var(--tx2);padding:0;font-size:13px;text-decoration:underline}
+.kcal{font-size:26px;font-weight:800;color:var(--inv)}
+.tag{font-size:11px;color:var(--bg);background:var(--y);border-radius:6px;padding:2px 7px;font-weight:800}
+.dots{display:inline-flex;gap:4px;vertical-align:middle}.dots i{width:9px;height:9px;border-radius:50%;background:var(--bg3)}.dots i.f{background:var(--inv)}
+.bar{height:8px;border-radius:4px;background:var(--bg3);margin:5px 0 12px;overflow:hidden}.bar span{display:block;height:100%;background:var(--inv)}.bar.a span{background:var(--tx2)}
+ul{margin:4px 0 10px;padding-left:18px;color:var(--tx2);font-size:14px}
+.note{border-left:2px solid var(--y);padding:4px 12px;color:var(--tx2);font-size:13px;margin:16px 0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.big{font-size:30px;font-weight:800;color:var(--inv);line-height:1.1}
+.back{background:none;border:0;color:var(--tx2);padding:0;margin-bottom:16px;font-size:14px}
+.heart{background:none;border:0;font-size:22px;color:var(--y)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--inv);color:var(--bg);padding:11px 18px;border-radius:99px;font-weight:600;font-size:14px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const CATS={sal:'Salsas y aderezos',unt:'Untables',sna:'Snacks',dul:'Dulces y postres',beb:'Bebidas',lac:'Lácteos',des:'Desayunos y meriendas',alm:'Almuerzos y cenas',rap:'Comidas rápidas'};
+const TG={bar:'Más económica',fac:'Más fácil de conseguir',rap:'Más rápida',sin:'Sin cocción',cas:'Casera',com:'Comercial'};
+const SRC_T='Referencia general de tablas nutricionales (aproximada)',SRC_R='Receta calculada (estimada)';
+/* ---------- BIBLIOTECA (ampliable: agregar objetos a FOODS / ALTS / PARTS) ---------- */
+const FOODS=[
+{id:'mayo',n:'Mayonesa tradicional',c:'sal',t:'ind',u:'30 g (≈ 2 cucharadas)',k:200,kw:'mayonesa aderezo salsa golf',d:'Salsa cremosa y grasa, muy usada en sándwiches, ensaladas y papas.',src:SRC_T},
+{id:'manteca',n:'Manteca',c:'unt',t:'ind',u:'10 g (1 cucharadita)',k:72,kw:'manteca mantequilla untable tostadas',d:'Grasa untable clásica del desayuno y la merienda.',src:SRC_T},
+{id:'ddl',n:'Dulce de leche',c:'unt',t:'ind',u:'20 g (1 cucharada)',k:63,kw:'dulce de leche untable',d:'Untable dulce, denso y cremoso.',src:SRC_T},
+{id:'papas',n:'Papas fritas de paquete',c:'sna',t:'ind',u:'30 g (un puñado)',k:160,kw:'papas fritas snacks paquete chips',d:'Snack salado y crocante.',src:SRC_T},
+{id:'refresco',n:'Refresco azucarado',c:'beb',t:'ind',u:'350 ml (1 lata)',k:150,kw:'refresco gaseosa cola bebida',d:'Bebida gasificada con azúcar.',src:SRC_T},
+{id:'jugo',n:'Jugo comercial',c:'beb',t:'ind',u:'200 ml (1 vaso)',k:95,kw:'jugo comercial bebida nectar',d:'Jugo o néctar envasado con azúcar agregada.',src:SRC_T},
+{id:'yogur',n:'Yogur entero saborizado',c:'lac',t:'ind',u:'190 g (1 pote)',k:170,kw:'yogur entero saborizado lacteo merienda desayuno',d:'Yogur con sabor, entero y azucarado.',src:SRC_T},
+{id:'helado',n:'Helado de crema',c:'dul',t:'ind',u:'100 g (≈ 2 bochas)',k:205,kw:'helado crema postre dulce',d:'Postre frío cremoso.',src:SRC_T},
+{id:'gomitas',n:'Gomitas',c:'dul',t:'ind',u:'30 g (≈ 10 unidades)',k:100,kw:'gomitas golosinas caramelos dulces snack dulce',d:'Golosina masticable y azucarada.',src:SRC_T},
+{id:'galle',n:'Galletitas dulces rellenas',c:'dul',t:'ind',u:'3 unidades (≈ 35 g)',k:170,kw:'galletitas galletas dulces rellenas snack dulce merienda',d:'Galletitas con relleno, muy comunes en meriendas y con el mate.',src:SRC_T},
+{id:'alfajor',n:'Alfajor de dulce de leche',c:'dul',t:'ind',u:'1 unidad (≈ 55 g)',k:230,kw:'alfajor dulce de leche golosina snack dulce',d:'Clásico uruguayo comercial, con dulce de leche y cobertura.',src:SRC_T},
+{id:'medi',n:'Medialunas',c:'des',t:'ind',u:'2 unidades (≈ 100 g)',k:330,kw:'medialunas medialuna facturas desayuno merienda panaderia',d:'Facturas de panadería para el desayuno o la merienda.',src:SRC_T},
+{id:'cereal',n:'Cereal azucarado con leche entera',c:'des',t:'ind',u:'1 bowl (40 g + 200 ml)',k:270,kw:'cereal azucarado cereales leche desayuno',d:'Cereal de caja con leche entera.',src:SRC_T},
+{id:'leche',n:'Leche entera',c:'lac',t:'ind',u:'200 ml (1 vaso)',k:125,kw:'leche entera lacteo vaso',d:'Leche común, la más habitual en la casa.',src:SRC_T},
+{id:'queso',n:'Queso muzzarella',c:'lac',t:'ind',u:'30 g (1 feta)',k:90,kw:'queso muzzarella muzza lacteo sandwich tostado',d:'Queso de uso diario en tostados, pizzas y tartas.',src:SRC_T},
+{id:'flan',n:'Postre lácteo tipo flan',c:'lac',t:'ind',u:'1 pote (≈ 120 g)',k:180,kw:'postre lacteo flan natilla pote dulce',d:'Postre de pote cremoso y dulce.',src:SRC_T},
+{id:'cafe',n:'Café con leche y azúcar',c:'beb',t:'ind',u:'1 taza (≈ 250 ml)',k:125,kw:'cafe con leche azucar bebida desayuno',d:'Café con leche entera y dos cucharaditas de azúcar.',src:SRC_R},
+{id:'licuado',n:'Licuado de banana con leche entera y azúcar',c:'beb',t:'ind',u:'1 vaso grande (≈ 400 ml)',k:285,kw:'licuado batido banana leche azucar bebida',d:'Licuado cremoso, banana, leche entera y azúcar.',src:SRC_R},
+{id:'chocolatada',n:'Leche chocolatada',c:'beb',t:'ind',u:'250 ml (1 vaso)',k:170,kw:'leche chocolatada chocolate bebida lactea cacao',d:'Bebida láctea con cacao y azúcar.',src:SRC_T},
+{id:'tarta',n:'Tarta de jamón y queso',c:'alm',t:'prep',u:'1 porción (≈ 1/6 de tarta)',k:400,kw:'tarta jamon queso almuerzo cena masa',d:'Tarta con doble tapa de masa.',src:SRC_R},
+{id:'empanadas',n:'Empanadas de carne fritas',c:'alm',t:'prep',u:'2 unidades',k:520,kw:'empanadas empanada carne fritas almuerzo cena',d:'Empanadas fritas, muy habituales en reuniones y cenas.',src:SRC_R},
+{id:'tostadas',n:'Tostadas con manteca y dulce de leche',c:'des',t:'prep',u:'2 tostadas',kw:'tostadas manteca dulce de leche desayuno merienda pan',d:'Armalas por componentes y mirá qué cambia.',src:SRC_R,parts:[
+ {l:'Pan',o:[['Pan común, 2 rebanadas',150],['Pan integral, 2 rebanadas',140]]},
+ {l:'Primer untable',o:[['Manteca, 10 g',72],['Margarina light, 10 g',40],['Queso crema light, 10 g',18],['Palta pisada, 10 g',16],['Sin untable',0]]},
+ {l:'Segundo untable',o:[['Dulce de leche, 20 g',63],['Dulce de leche light, 20 g',45],['Dulce de leche + yogur griego, 20 g',37],['Mermelada light, 20 g',22]]}]},
+{id:'pasta',n:'Pasta con salsa cremosa',c:'alm',t:'prep',u:'1 plato',kw:'pasta fideos tallarines salsa cremosa crema queso rallado almuerzo cena',d:'Armala por componentes: pasta, salsa y queso.',src:SRC_R,parts:[
+ {l:'Pasta',o:[['Plato abundante, 250 g cocida',390],['Plato moderado, 200 g cocida',310],['Pasta integral, 200 g cocida',250]]},
+ {l:'Salsa',o:[['Salsa cremosa, 100 g',160],['Salsa mixta (tomate y un poco de crema), 100 g',85],['Salsa de tomate casera, 100 g',45]]},
+ {l:'Queso rallado',o:[['20 g',80],['10 g',40],['Sin queso rallado',0]]}]},
+{id:'milanesa',n:'Milanesa de carne frita',c:'alm',t:'prep',u:'1 mediana (≈ 120 g)',k:340,kw:'milanesa frita carne almuerzo cena',d:'Clásico de almuerzos y cenas, empanado y frito.',src:SRC_R},
+{id:'hamb',n:'Hamburguesa completa',c:'rap',t:'prep',u:'1 hamburguesa',kw:'hamburguesa burger comida rapida sandwich',d:'Armala por componentes y mirá qué cambia.',src:SRC_R,parts:[
+ {l:'Pan',o:[['Pan de hamburguesa tradicional',150],['Pan de hamburguesa chico',100],['Pan lactal (2 rebanadas)',130]]},
+ {l:'Carne',o:[['Carne picada común, 100 g cocida',250],['Carne picada magra, 100 g cocida',190],['Medallón de pollo, 100 g',170]]},
+ {l:'Queso',o:[['Cheddar, 2 fetas',110],['1 feta de queso',55],['Queso light, 2 fetas',70],['Sin queso',0]]},
+ {l:'Salsa',o:[['Mayonesa, 20 g',135],['Mayonesa light, 20 g',60],['Salsa de yogur y mostaza, 20 g',17],['Mostaza, 20 g',15]]},
+ {l:'Complementos',o:[['Panceta, 2 fetas',90],['Cebolla caramelizada',40],['Lechuga y tomate',10]]}]},
+{id:'pizza',n:'Pizza de muzzarella',c:'rap',t:'prep',u:'2 porciones',kw:'pizza muzzarella muzza comida rapida',d:'Dos porciones, ajustables por componente.',src:SRC_R,parts:[
+ {l:'Masa',o:[['Masa tradicional, 2 porciones',330],['Masa fina, 2 porciones',220],['Pan pita grande como base',165]]},
+ {l:'Queso',o:[['Muzzarella abundante',220],['Muzzarella moderada',130],['Muzzarella light, moderada',90]]},
+ {l:'Cobertura',o:[['Jamón y morrones',80],['Vegetales (tomate, cebolla, morrón)',35],['Rúcula y tomate',30]]}]}
+];
+const A=(o,n,k,s,d,pros,cons,how,tags,src)=>({o,n,k,s,d,pros,cons,how,tags,src:src||SRC_T});
+const W=(a,u)=>({...a,u});
+const ALTS=[
+A('mayo','Salsa de yogur natural y mostaza',25,4,'Mantiene lo cremoso y el toque ácido; es más liviana y menos untuosa.',['Muy pocas calorías','Se prepara en un minuto','Aporta algo de proteína'],['Sabor más ácido','Dura pocos días en la heladera'],'En sándwiches, ensaladas y como dip. Mezclá yogur natural con mostaza a gusto.',['bar','rap','sin','cas'],SRC_R),
+A('mayo','Mayonesa light',90,5,'Misma textura y sabor muy parecido, con menos grasa.',['Cambio casi imperceptible','Se consigue en cualquier súper'],['Reducción menor','Es un producto procesado'],'Usala igual que la tradicional, en la misma cantidad.',['fac','com','sin']),
+A('mayo','Queso crema light',55,4,'Cremoso y suave; sirve de base para untar o aderezar.',['Textura cremosa','Aporta proteína'],['Menos ácido que la mayonesa','Más salado según la marca'],'Untalo en sándwiches o diluilo con limón para aderezar.',['fac','com','sin','rap']),
+A('mayo','Salsa de yogur, limón y ajo',20,3,'Fresca y aromática; cambia el perfil pero cumple la función de aderezo.',['Muy ligera','Casera y económica'],['Sabor distinto al original'],'Ideal para ensaladas, carnes y vegetales asados.',['bar','cas','sin','rap'],SRC_R),
+A('manteca','Margarina light',40,4,'Se unta igual y funciona en el pan o las tostadas.',['Fácil de conseguir','Función casi idéntica'],['Sabor menos intenso','Producto procesado'],'En tostadas, pan o preparaciones simples.',['bar','fac','com','sin','rap']),
+A('manteca','Queso crema light',18,3,'Cremoso y salado; cumple la función de untable.',['Gran diferencia calórica','Aporta proteína'],['Sabor distinto al de la manteca'],'En tostadas, tostados o con mermelada.',['fac','com','sin','rap']),
+A('manteca','Palta pisada',16,3,'Textura cremosa y grasa de buena calidad; ideal en tostadas saladas.',['Aporta fibra','Muy saciante'],['Dura poco una vez pisada','Más cara según la época'],'Pisala con sal y limón y untala en el pan.',['sin','cas','rap']),
+A('ddl','Dulce de leche light',45,4,'Mismo sabor y uso, con algo menos de azúcar y calorías.',['Cambio casi imperceptible','Se consigue fácil'],['Textura algo más suelta'],'Igual que el original, en tostadas, panqueques o postres.',['fac','com','sin','rap']),
+A('ddl','Dulce de leche + yogur griego',37,4,'Mitad y mitad: conserva el sabor y suma cremosidad y proteína.',['Más proteína','Sabor reconocible'],['Hay que mezclarlo antes','Menos dulce'],'Mezclá partes iguales y usalo en tostadas, frutas o panqueques.',['cas','sin','rap'],SRC_R),
+A('ddl','Mermelada light',22,2,'Cumple la función de untable dulce, pero el sabor es muy distinto.',['Muy pocas calorías','Económica'],['No tiene la cremosidad ni el sabor del dulce de leche'],'En tostadas o con queso crema.',['bar','fac','com','sin','rap']),
+A('papas','Papas horneadas de paquete',125,4,'Similar sabor y crocancia, con menos grasa.',['Muy parecidas','Se consiguen fácil'],['Reducción pequeña','Más seca la textura'],'Para el mismo momento de snack, en la misma porción.',['fac','com','sin','rap']),
+A('papas','Pochoclo sin aceite',115,3,'Crocante y salado, y una porción más voluminosa.',['Más volumen','Muy económico','Aporta fibra'],['Textura distinta a la papa frita'],'Hacelo en olla o microondas con poco aceite y sal.',['bar','cas','rap'],SRC_R),
+A('refresco','Refresco sin azúcar',2,4,'Mismo sabor y gas, sin azúcar agregada.',['Reducción casi total','Se consigue en todos lados'],['Sabor algo distinto para algunos paladares'],'Reemplaza al azucarado en la misma ocasión.',['bar','fac','com','sin','rap']),
+A('refresco','Mitad azucarado, mitad sin azúcar',75,5,'Una transición: el sabor es casi igual y baja a la mitad.',['Sin renunciar al sabor','Gradual'],['Hay que servirlo mezclado'],'Servilo en vaso, mitad y mitad.',['bar','fac','cas','sin','rap']),
+A('jugo','Jugo exprimido diluido con agua',45,3,'Sabor natural y fresco; mitad jugo, mitad agua.',['Fruta real','Sin aditivos'],['Hay que exprimir','Menos dulce'],'Exprimí naranja y completá con agua.',['cas','sin']),
+A('jugo','Jugo en polvo sin azúcar',5,3,'Mantiene el sabor frutal y lo dulce, con casi nada de energía.',['Muy económico','Rinde mucho'],['Sabor menos natural'],'Prepará en jarra y llevalo a todos lados.',['bar','fac','com','rap','sin']),
+A('yogur','Yogur descremado saborizado',100,5,'Mismo sabor y textura, con menos grasa y azúcar.',['Cambio casi imperceptible','Fácil de conseguir'],['Menos cremoso'],'Para el desayuno o la merienda, igual que el original.',['bar','fac','com','sin','rap']),
+A('yogur','Yogur natural descremado con fruta',110,3,'Más natural y con fibra; cambia el sabor industrial.',['Más fibra','Controlás el dulzor'],['Más acidez','Requiere cortar fruta'],'Agregá fruta picada y, si querés, canela.',['cas','sin','rap']),
+A('helado','Helado de agua',90,3,'Mantiene la frescura y lo dulce, pero no la cremosidad.',['Mucha diferencia calórica','Fácil de conseguir'],['Menos cremoso'],'Para el mismo momento de postre.',['fac','com','sin','rap']),
+A('helado','Yogur congelado casero',65,3,'Cremoso y fresco, con yogur y fruta.',['Aporta proteína','Cremoso'],['Requiere freezer y preparación','Más ácido'],'Congelá yogur con fruta y batí antes de servir.',['cas','sin'],SRC_R),
+A('milanesa','Milanesa de carne al horno',230,4,'Misma milanesa, pero horneada con poco aceite.',['Mucho menos aceite','Similar sabor'],['Menos dorada y crocante'],'Horneá a 200 °C dándola vuelta a mitad de cocción, con un poco de aceite en spray.',['cas','fac']),
+A('milanesa','Milanesa de pollo al horno',210,3,'Más liviana por la carne y la cocción.',['Más proteína por caloría','Muy habitual'],['Sabor distinto al de la carne'],'Mismo método de horneado.',['cas','fac']),
+W(A('gomitas','Uvas congeladas',69,3,'Dulces, frías y se comen de a una: conservan algo de la gracia de picotear.',['Fruta real','Aportan fibra','Mucho más volumen'],['No son masticables como la gomita'],'Congelá uvas lavadas y comelas de a una.',['bar','fac','sin','cas']),'100 g (≈ 1 taza)'),
+W(A('gomitas','Frutillas frescas',48,2,'Dulces y jugosas; cubren las ganas de algo dulce, aunque la textura es muy distinta.',['Fruta entera','Mucho volumen'],['No es una golosina'],'Comelas solas o con una cucharada de yogur.',['fac','sin','rap']),'150 g (≈ 1 taza)'),
+W(A('galle','Galletas de avena caseras',100,3,'Dulces y para acompañar el mate, con avena en lugar de harina refinada.',['Aportan fibra','Controlás el azúcar','Más saciantes'],['Hay que hornearlas','Menos dulces que las comerciales'],'Mezclá avena con banana pisada y canela, formá y horneá unos 12 minutos.',['bar','cas'],SRC_R),'2 galletas (≈ 30 g)'),
+W(A('galle','Barra de proteína',160,3,'Dulce y práctica, con más proteína y saciedad que la galletita.',['Más proteína','Práctica para llevar'],['Reducción pequeña','Varía mucho según la marca: mirá la etiqueta'],'Como snack de media tarde o después de entrenar.',['fac','com','sin','rap']),'1 barra (≈ 40 g)'),
+W(A('galle','Manzana con canela',80,2,'Dulce y crocante; cambia el formato pero cubre el antojo.',['Fruta entera','Fibra y volumen'],['No es una galletita'],'En gajos con canela; en el microondas 1 minuto queda como un postre tibio.',['bar','fac','sin','rap']),'1 manzana mediana (≈ 150 g)'),
+W(A('alfajor','Galletas de avena con dulce de leche light',115,3,'Mantienen la combinación galleta y dulce de leche, con menos azúcar.',['Aportan fibra','Combinación reconocible'],['Hay que prepararlas'],'Hacé las galletas de avena y poné una cucharadita de dulce de leche light.',['cas'],SRC_R),'2 galletas (≈ 30 g) con 1 cucharadita de dulce de leche light'),
+W(A('alfajor','Barra de proteína',160,3,'Práctica, dulce y con más proteína; elegila con sabor a chocolate o dulce de leche.',['Más proteína','Muy práctica'],['Varía mucho según la marca: mirá la etiqueta'],'Como snack dulce en lugar del alfajor.',['fac','com','sin','rap']),'1 barra (≈ 40 g)'),
+W(A('alfajor','Banana con dulce de leche light',115,3,'Dulce, cremosa y saciante, con el toque del dulce de leche.',['Fruta entera','Muy económica'],['No tiene la cobertura ni la textura'],'Cortá la banana en rodajas y poné una cucharadita de dulce de leche light.',['bar','fac','sin','rap']),'1 banana + 1 cucharadita de dulce de leche light'),
+A('medi','Una medialuna y una fruta',225,4,'Seguís con la medialuna, pero una sola, acompañada de fruta.',['Mantiene el gusto','Suma fibra'],['Hay que dejar la segunda medialuna'],'Una medialuna con café y una manzana o banana.',['bar','fac','sin','rap'],SRC_R),
+A('medi','Tostadas integrales con queso crema y mermelada',190,3,'Cambia el formato pero sigue siendo desayuno dulce y reconfortante.',['Más fibra','Más saciantes'],['Distinta textura a la medialuna'],'2 rebanadas de pan integral tostadas con queso crema light y mermelada light.',['fac','sin','rap'],SRC_R),
+A('cereal','Cereal azucarado, porción de 30 g con leche descremada',185,4,'Mismo cereal y misma rutina, con una porción más chica y leche descremada.',['Mismo sabor','Cambio mínimo'],['Porción más chica'],'Medí una vez con una taza y usala siempre.',['bar','fac','sin','rap'],SRC_R),
+A('cereal','Copos de maíz o avena con leche descremada',220,4,'Cereal menos azucarado con la misma sensación de bowl.',['Menos azúcar agregada','Se consigue fácil'],['Menos dulce'],'Agregá fruta picada para sumar dulzor natural.',['fac','com','sin','rap'],SRC_R),
+A('leche','Leche descremada',70,4,'Misma función en el café, el licuado o el vaso, con menos grasa.',['Menos calorías','Cambio simple'],['Menos cremosa'],'Usala igual en el café, los cereales y las recetas.',['bar','fac','com','sin','rap']),
+A('leche','Leche semidescremada',95,5,'Muy parecida a la entera en sabor y textura.',['Casi imperceptible','Fácil de conseguir'],['Reducción moderada'],'Reemplazo directo de la entera.',['bar','fac','com','sin','rap']),
+A('queso','Queso muzzarella light',65,4,'Funde y rinde parecido al queso común.',['Funciona en tostados y pizzas','Fácil de conseguir'],['Algo menos cremoso al fundir'],'Usalo en la misma cantidad en tostados o tartas.',['fac','com','sin','rap']),
+A('queso','Ricota',42,3,'Suave, fresca y cremosa; no funde igual pero sirve en rellenos y tartas.',['Aporta proteína','Menos calorías'],['No funde como la muzzarella'],'En tartas, panqueques salados o untada en tostadas.',['bar','fac','sin','rap']),
+A('flan','Postre light de pote',95,4,'Mismo formato, con menos azúcar y grasa.',['Fácil de conseguir','Misma experiencia'],['Menos cremoso'],'Para el mismo momento de postre.',['fac','com','sin','rap']),
+A('flan','Yogur griego con fruta',110,3,'Cremoso y dulce con la fruta, con más proteína.',['Más proteína','Más saciante'],['Más ácido'],'Yogur griego natural con fruta y una cucharadita de miel si querés.',['cas','sin','rap'],SRC_R),
+A('cafe','Café con leche descremada y edulcorante',55,5,'Mismo ritual y sabor casi idéntico.',['Cambio casi imperceptible','Muy simple'],['Requiere acostumbrarse al edulcorante'],'Reemplazo directo en el café.',['bar','fac','sin','rap']),
+A('cafe','Café con leche entera sin azúcar',90,4,'Mantiene la cremosidad y saca el azúcar.',['Cremoso','Sin tocar la leche'],['Menos dulce'],'Probá bajar el azúcar de a poco.',['bar','fac','sin','rap']),
+A('licuado','Licuado con leche descremada, sin azúcar',180,4,'Mismo licuado, con la dulzura de la banana.',['Misma textura','Más fibra'],['Menos dulce'],'Banana bien madura y leche descremada.',['cas','sin','rap'],SRC_R),
+A('licuado','Licuado mitad leche, mitad agua, sin azúcar',135,3,'Más ligero, con la dulzura de la banana.',['Menos calorías','Muy refrescante'],['Menos cremoso'],'Usalo después de entrenar o como merienda liviana.',['bar','cas','sin','rap'],SRC_R),
+A('chocolatada','Leche descremada con cacao sin azúcar',100,3,'Conserva el sabor a chocolate con menos azúcar.',['Menos azúcar agregada','Casera'],['Menos dulce'],'Una cucharadita de cacao amargo disuelto en leche tibia.',['bar','cas','rap'],SRC_R),
+A('tarta','Tarta de una sola tapa',290,4,'Misma tarta, pero con menos masa.',['Menos calorías','Mismo relleno'],['Menos crocante'],'Armá la tarta con una sola tapa y relleno abundante.',['cas'],SRC_R),
+A('tarta','Tarta de verduras y huevo, una tapa',230,3,'Más verduras y menos queso y jamón.',['Más fibra','Más liviana'],['Sabor distinto'],'Mezclá verduras con huevo y un poco de queso.',['cas'],SRC_R),
+A('empanadas','Empanadas al horno',400,5,'Mismas empanadas, con menos aceite.',['Mismo sabor','Cambio simple'],['Masa menos dorada'],'Horneá a 200 °C hasta que doren.',['cas','fac'],SRC_R),
+A('empanadas','Una empanada al horno con ensalada',240,3,'Una empanada acompañada de verduras.',['Más fibra','Más saciante'],['Una sola empanada'],'Servila con ensalada de hojas verdes y tomate.',['cas','rap'],SRC_R)
+];
+/* ---------- ESTADO ---------- */
+const S={v:'home',tipo:'ind',cat:'',q:'',id:null,aid:null,pref:'mid',tags:[],sel:[],lock:[],qo:1,qa:1,fr:5};
+const $=s=>document.querySelector(s),norm=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const F=id=>FOODS.find(f=>f.id===id),fmt=n=>Math.round(n).toLocaleString('es-UY');
+let FAV=[];try{FAV=JSON.parse(localStorage.getItem('eta_fav')||'[]')}catch(e){}
+const saveFav=()=>{try{localStorage.setItem('eta_fav',JSON.stringify(FAV))}catch(e){}};
+const pct=(o,a)=>o>0?Math.round((o-a)/o*100):0;
+const dots=s=>'<span class="dots">'+[1,2,3,4,5].map(i=>`<i class="${i<=s?'f':''}"></i>`).join('')+'</span>';
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1800)}
+function go(v,o){Object.assign(S,o||{},{v});render();scrollTo(0,0)}
+/* ---------- VISTAS ---------- */
+function list(){
+ const q=norm(S.q.trim());
+ let it=FOODS.filter(f=>(q||S.cat||f.t===S.tipo)&&(!S.cat||f.c===S.cat)&&(!q||norm(f.n+' '+f.kw).includes(q)));
+ if(q&&!it.length)return `<div class="card"><p>No tenemos “${esc(S.q)}” en la biblioteca todavía.</p><p class="mu">Podés comparar con tus propios valores.</p><button class="btn" data-a="custom">Comparar con mis valores</button></div>`;
+ return it.map(f=>`<button class="card" data-a="open" data-id="${f.id}"><div class="row"><div><b>${f.n}</b><div class="mu">${CATS[f.c]} · ${f.t==='ind'?'Alimento':'Preparación'}</div></div><span>›</span></div></button>`).join('')||'<p class="mu">Sin resultados en esta categoría.</p>';
+}
+const V={
+home(){return `<h1>Encontrá tu alternativa</h1><p class="sub">Descubrí opciones similares a los alimentos que consumís habitualmente, con menos calorías.</p>
+<label for="q">¿Qué alimento o preparación querés sustituir?</label>
+<input id="q" placeholder="Ej. mayonesa, pizza, chocolate, galletitas..." value="${esc(S.q)}" autocomplete="off">
+<div class="seg"><button data-a="tipo" data-v="ind" class="${S.tipo==='ind'?'on':''}">Alimentos individuales</button><button data-a="tipo" data-v="prep" class="${S.tipo==='prep'?'on':''}">Preparaciones completas</button></div>
+<div class="chips">${Object.entries(CATS).map(([k,v])=>`<button class="chip ${S.cat===k?'on':''}" data-a="cat" data-v="${k}">${v}</button>`).join('')}</div>
+<div id="sg">${list()}</div>
+<p class="note">Los valores son referencias aproximadas y varían según marca, tamaño y preparación. Siempre podés ajustar las cantidades.</p>`},
+results(){const f=F(S.id),w=S.pref,all=ALTS.filter(a=>a.o===f.id);
+ const sc=a=>{const p=pct(f.k,a.k)/100,m=w==='red'?p:w==='sim'?a.s/5:p*.5+a.s/5*.5;return m+S.tags.filter(t=>a.tags.includes(t)).length*.4};
+ const rs=[...all].sort((a,b)=>sc(b)-sc(a));
+ return `<button class="back" data-a="home">‹ Volver</button><h2>${f.n}</h2><p class="mu">Referencia: ${fmt(f.k)} kcal por ${f.u}</p>
+<h3>¿Qué te importa más?</h3><div class="chips">${[['red','Reducir lo más posible'],['sim','Mantener sabor y textura'],['mid','Punto intermedio']].map(([k,v])=>`<button class="chip ${w===k?'on':''}" data-a="pref" data-v="${k}">${v}</button>`).join('')}</div>
+<h3>Priorizar</h3><div class="chips">${Object.entries(TG).map(([k,v])=>`<button class="chip ${S.tags.includes(k)?'on':''}" data-a="tag" data-v="${k}">${v}</button>`).join('')}</div>
+<h3>Alternativas (${rs.length})</h3>`+rs.map(a=>{const i=ALTS.indexOf(a),d=f.k-a.k;return `<div class="card"><div class="row"><b>${a.n}</b><button class="heart" data-a="fav" data-i="${i}">${FAV.includes(i)?'♥':'♡'}</button></div><p class="mu">${a.d}</p>
+<div class="g2"><div><div class="kcal">${fmt(a.k)} <small class="mu">kcal</small></div>${a.u?`<div class="mu">por ${a.u}</div>`:''}<span class="mu">${d>0?'−'+fmt(d)+' kcal ('+pct(f.k,a.k)+'%)':'sin reducción'}</span></div><div><div class="mu">Similitud ${a.s}/5</div>${dots(a.s)}</div></div>
+<ul>${a.pros.map(p=>`<li>${p}</li>`).join('')}</ul><button class="btn g" data-a="detail" data-i="${i}">Ver comparación</button></div>`}).join('')},
+detail(){const a=ALTS[S.aid],f=F(a.o),fav=FAV.includes(S.aid);
+ return `<button class="back" data-a="results" data-id="${f.id}">‹ Alternativas de ${f.n.toLowerCase()}</button><h2>${a.n}</h2><p class="mu">${a.d}</p>
+<h3>Comparación</h3><div class="card"><div class="mu">Original · ${f.n}</div><div class="bar"><span id="bo"></span></div><div class="mu">Alternativa · ${a.n}</div><div class="bar a"><span id="ba"></span></div>
+<div class="g2"><div><div class="mu">Original</div><div class="big" id="ko"></div></div><div><div class="mu">Alternativa</div><div class="big" id="ka"></div></div></div>
+<p id="df" style="margin-top:14px;color:var(--inv);font-weight:600"></p>
+<p class="mu">Porción de comparación: ${f.u}${a.u?' · alternativa: '+a.u:''}. Fuente: ${a.src}. Los valores pueden variar según marca y preparación.</p></div>
+<h3>Ajustá tus cantidades</h3><div class="g2"><div><label for="qo">Original (porciones)</label><input id="qo" type="number" min="0" step="0.5" value="${S.qo}"></div><div><label for="qa">Alternativa (porciones)</label><input id="qa" type="number" min="0" step="0.5" value="${S.qa}"></div></div>
+<p class="mu" style="margin-top:6px">1 porción original = ${f.u}${a.u?' · 1 porción de la alternativa = '+a.u:''}</p>
+<h3>Similitud: ${a.s}/5 ${dots(a.s)}</h3><p class="mu">Considera sabor, textura, función culinaria y si se puede usar en la misma situación. No mide calidad nutricional.</p>
+<div class="g2"><div><h3>Ventajas</h3><ul>${a.pros.map(p=>`<li>${p}</li>`).join('')}</ul></div><div><h3>A tener en cuenta</h3><ul>${a.cons.map(p=>`<li>${p}</li>`).join('')}</ul></div></div>
+<h3>Cómo usarla</h3><p>${a.how}</p>
+<h3>El impacto de pequeños cambios</h3><label for="fr">¿Cuántas veces por semana lo consumís?</label><input id="fr" type="number" min="0" step="1" value="${S.fr}">
+<div class="g2" style="margin-top:12px"><div class="card"><div class="mu">Por semana</div><div class="big" id="iw"></div></div><div class="card"><div class="mu">En 4 semanas</div><div class="big" id="im"></div></div></div>
+<p class="note">Esta es una estimación matemática de la diferencia energética entre las opciones. No representa una predicción exacta de pérdida de peso o grasa corporal.</p>
+<button class="btn" data-a="choose" data-i="${S.aid}">Elegir esta alternativa</button><button class="btn g" data-a="fav" data-i="${S.aid}">${fav?'Quitar de favoritos':'Guardar en favoritos'}</button>`},
+builder(){const f=F(S.id);return `<button class="back" data-a="home">‹ Volver</button><h2>${f.n}</h2><p class="sub">Cambiá solo lo que quieras. Los componentes que marques como “mantener” no se modifican.</p>`+
+ f.parts.map((p,i)=>`<div class="card"><label>${p.l}</label><select data-b="${i}" ${S.lock[i]?'disabled':''}>${p.o.map((o,j)=>`<option value="${j}" ${S.sel[i]==j?'selected':''}>${o[0]} · ${o[1]} kcal</option>`).join('')}</select><label style="margin:10px 0 0;font-weight:400;font-size:13px"><input type="checkbox" data-l="${i}" ${S.lock[i]?'checked':''} style="width:auto;margin-right:8px">Mantener el original</label></div>`).join('')+
+ `<h3>Resultado</h3><div class="card"><div class="g2"><div><div class="mu">Original</div><div class="big" id="to"></div></div><div><div class="mu">Modificada</div><div class="big" id="tm"></div></div></div><p id="td" style="margin-top:14px;color:var(--inv);font-weight:600"></p></div>
+ <p class="note">Estimación con valores de referencia aproximados; varía según tamaño y marca. Pequeños ajustes pueden marcar diferencia sin cambiar toda la comida.</p>`},
+custom(){return `<button class="back" data-a="home">‹ Volver</button><h2>Comparar con mis valores</h2><p class="sub">Ingresá los datos de la etiqueta o de donde los tengas. No inventamos valores: usamos los tuyos.</p>
+<div class="card"><label for="cn">Alimento original</label><input id="cn" value="${esc(S.q)}"><label for="ck" style="margin-top:10px">Calorías por porción</label><input id="ck" type="number" min="0" inputmode="decimal"></div>
+<div class="card"><label for="an">Alternativa</label><input id="an"><label for="ak" style="margin-top:10px">Calorías por la misma porción</label><input id="ak" type="number" min="0" inputmode="decimal"></div>
+<button class="btn" data-a="ccalc">Calcular diferencia</button><p id="cr" style="margin-top:14px;color:var(--inv);font-weight:600"></p>`},
+favs(){return `<button class="back" data-a="home">‹ Volver</button><h2>Tus favoritas</h2>`+(FAV.length?FAV.map(i=>{const a=ALTS[i],f=F(a.o);return `<button class="card" data-a="detail" data-i="${i}"><b>${a.n}</b><div class="mu">en lugar de ${f.n.toLowerCase()} · −${fmt(f.k-a.k)} kcal por porción</div></button>`}).join(''):'<p class="mu">Todavía no guardaste ninguna.</p>')}
+};
+function render(){$('#app').innerHTML=`<header><span><b>Juanma Solís</b> Coach</span><button class="link" data-a="favs">Favoritos (${FAV.length})</button></header>`+V[S.v]();upd()}
+/* ---------- CÁLCULOS EN VIVO ---------- */
+function upd(){
+ if(S.v==='detail'){const a=ALTS[S.aid],f=F(a.o),o=f.k*S.qo,n=a.k*S.qa,d=o-n,mx=Math.max(o,n,1);
+  $('#bo').style.width=o/mx*100+'%';$('#ba').style.width=n/mx*100+'%';$('#ko').textContent=fmt(o)+' kcal';$('#ka').textContent=fmt(n)+' kcal';
+  $('#df').textContent=d>0?`Esta alternativa aporta aproximadamente ${fmt(d)} kcal menos (${pct(o,n)}%).`:d<0?`Esta opción aporta ${fmt(-d)} kcal más con estas cantidades.`:'Aportan lo mismo con estas cantidades.';
+  $('#iw').textContent=fmt(d*S.fr)+' kcal';$('#im').textContent=fmt(d*S.fr*4)+' kcal'}
+ if(S.v==='builder'){const f=F(S.id),t=g=>f.parts.reduce((s,p,i)=>s+p.o[g(i)][1],0),o=t(()=>0),m=t(i=>S.lock[i]?0:S.sel[i]),d=o-m;
+  $('#to').textContent=fmt(o)+' kcal';$('#tm').textContent=fmt(m)+' kcal';
+  $('#td').textContent=d>0?`Reducción estimada: ${fmt(d)} kcal (${pct(o,m)}%).`:d<0?`Esta versión aporta ${fmt(-d)} kcal más.`:'Sin cambios respecto de la original.'}
+}
+/* ---------- EVENTOS ---------- */
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,v=b.dataset.v,i=+b.dataset.i;
+ if(a==='home')go('home');
+ else if(a==='tipo'){S.tipo=v;S.q='';render()}
+ else if(a==='cat'){S.cat=S.cat===v?'':v;render()}
+ else if(a==='open'){const f=F(b.dataset.id);f.parts?go('builder',{id:f.id,sel:f.parts.map(()=>0),lock:[]}):go('results',{id:f.id,tags:[]})}
+ else if(a==='pref'){S.pref=v;render()}
+ else if(a==='tag'){S.tags=S.tags.includes(v)?S.tags.filter(t=>t!==v):[...S.tags,v];render()}
+ else if(a==='results')go('results',{id:b.dataset.id});
+ else if(a==='detail')go('detail',{aid:i,qo:1,qa:1,fr:5});
+ else if(a==='fav'){FAV=FAV.includes(i)?FAV.filter(x=>x!==i):[...FAV,i];saveFav();const y=window.scrollY;render();scrollTo(0,y)}
+ else if(a==='choose'){if(!FAV.includes(i)){FAV.push(i);saveFav()}toast('Guardada en tus favoritas');render()}
+ else if(a==='favs')go('favs');
+ else if(a==='custom')go('custom');
+ else if(a==='ccalc'){const o=+$('#ck').value,n=+$('#ak').value,r=$('#cr');
+  if(!$('#ck').value||!$('#ak').value){r.textContent='Completá las calorías de ambas opciones.';return}
+  const d=o-n;r.textContent=d>0?`${$('#an').value||'La alternativa'} aporta aproximadamente ${fmt(d)} kcal menos por porción (${pct(o,n)}%).`:d<0?`La alternativa aporta ${fmt(-d)} kcal más por porción.`:'Aportan lo mismo.'}
+});
+document.addEventListener('input',e=>{const t=e.target;
+ if(t.id==='q'){S.q=t.value;$('#sg').innerHTML=list()}
+ else if(t.id==='qo'||t.id==='qa'||t.id==='fr'){S[t.id]=Math.max(0,+t.value||0);upd()}});
+document.addEventListener('change',e=>{const t=e.target;
+ if(t.dataset.b!==undefined){S.sel[+t.dataset.b]=+t.value;upd()}
+ if(t.dataset.l!==undefined){S.lock[+t.dataset.l]=t.checked;render()}});
+render();
+</script>
+</body>
+</html>
